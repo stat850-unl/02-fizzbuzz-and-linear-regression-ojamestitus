@@ -1,6 +1,6 @@
 ---
 title: "Homework: Introduction to Statistical Programming"
-author: "Firstname Lastname"
+author: "Oliver Titus"
 output: html_document
 ---
 
@@ -54,7 +54,7 @@ for (i in 1:30) {
 
 In the sas chunk, write similar code which will solve this problem.
 
-```{r chunk-name, engine=sashtml fizzbuzz-sas, error = T}
+```{r fizzbuzz-sas, engine="sashtml", engine.path=saspath, engine.opts=sasopts, error = T}
 data fizzbuzz;
   do x=1 to 30;
     if mod(x,15)=0 then put "FizzBuzz";
@@ -62,16 +62,11 @@ data fizzbuzz;
     else if mod(x,3)=0 then put "Fizz";
     else put x;
   end;
-```
+run;
 
-```{r readlog}
-cat(readLines("saslog.log"), sep="\n")
-```
-
-
-```{r cleanuplog}
-# Do not forget to remove the log file when you are done!
-unlink("saslog.log")
+PROC PRINT;
+data=fizzbuzz;
+run;
 ```
 
 
@@ -122,17 +117,16 @@ res <- rep(NA, 4)
 # res <- .....
 # ------------------------------------------------------------------------------
 # Do not edit this
-library(matlib)
 Xt <- t(X)
 XtX <- Xt%*%X
-res <- inv(XtX) %*% Xt %*% Y
+res <- solve(XtX) %*% Xt %*% Y
 print(res) 
 ```
 
-The regression equation is $\text{Amazon Price} = `r res[1]` + `r res[2]`(\text{List Price}) `r res[3]`(\text{is Hardcover})  `r res[4]`(\text{# Pages})$
+The regression equation is $\text{Amazon Price} = `r res[1]` + `r res[2]`(\text{List Price}) + `r res[3]`(\text{is Hardcover}) + `r res[4]`(\text{# Pages})$
 
 
-```{sas}
+```{r regression-sas, engine="sashtml", engine.path=saspath, engine.opts=sasopts, error = T}
 /********************************************************************************
 * Read in the data 
 ********************************************************************************/
@@ -168,12 +162,18 @@ X1[,1] = 1; /* Intercept column */
 varname[1] = "Intercept";
 varname_t = varname`; /* Make a column vector to match the fitted coefs */
     
-* PRINT Y X1 varname_t; /* Just checking */
+ */PRINT Y X1 varname_t; /* Just checking */
     
 /* Find the estimated coefficients for each of the explanatory variables using */
 /* simple matrix operations. Store your answer in res */
-    
-/* res = inv(X'*X)*X'*Y */
+ 
+XT = X1`;
+PRINT XT;
+XTX = XT*X1;
+PRINT XTX;
+res = inv(XTX)*XT*Y;
+PRINT res;
+run; 
      
 /* Dont edit this */     
 PRINT varname_t res; /* Print coefs with labels */
